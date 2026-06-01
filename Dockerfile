@@ -1,5 +1,5 @@
 # 1. 使用标准的 Ubuntu 系统作为基础镜像
-FROM ubuntu:22.04
+FROM debian:stable-slim
 
 # 2. 安装脚本运行所必须的基础依赖工具（wget, curl, sudo, iproute2 等）
 RUN apt-get update && apt-get install -y \
