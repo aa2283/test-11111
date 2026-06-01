@@ -1,25 +1,16 @@
-# 1. 使用标准的 Ubuntu 系统作为基础镜像
-FROM debian:stable-slim
+FROM ubuntu:22.04
 
-# 2. 安装脚本运行所必须的基础依赖工具（wget, curl, sudo, iproute2 等）
 RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    sudo \
-    iproute2 \
-    iptables \
-    ca-certificates \
+    curl wget sudo iproute2 iptables ca-certificates screen \
     && rm -rf /var/lib/apt/lists/*
 
-# 3. 设置工作目录
 WORKDIR /app
 
-# 4. 设置环境变量（代替你原脚本里的 export 语句）
 ENV LANG=en_US.UTF-8
 ENV PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin:${PATH}"
 
-# 5. 【核心步骤】使用 EOF 把你的 CFwarp.sh 脚本内容写入到容器中
-RUN cat <<'EOF' > /app/CFwarp.sh
+# 1. 最外层改用 WARPSCRIPT 包裹，防止和里面的 EOF 冲突
+RUN cat <<'WARPSCRIPT' > /app/CFwarp.sh
 #!/bin/bash
 endpoint=
 red='\033[0;31m'
@@ -1898,11 +1889,8 @@ else
 startCFwarp
 fi
 fi
+WARPSCRIPT
 
-EOF
-
-# 6. 给刚才生成的脚本赋予可执行权限
 RUN chmod +x /app/CFwarp.sh
 
-# 7. 容器启动时默认去执行这个脚本
 CMD ["/bin/bash", "/app/CFwarp.sh"]
